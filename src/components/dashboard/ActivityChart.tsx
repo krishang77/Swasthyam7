@@ -24,9 +24,9 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ data, className }) => {
     { id: 'distance', label: 'Distance', color: '#00b8d9' },
   ];
   
-  const formatYAxis = (value: number) => {
+  const formatYAxis = (value: number): string => {
     if (activeMetric === 'steps') {
-      return value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value;
+      return value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value.toString();
     } else if (activeMetric === 'calories') {
       return `${value} cal`;
     } else {
@@ -34,7 +34,7 @@ const ActivityChart: React.FC<ActivityChartProps> = ({ data, className }) => {
     }
   };
   
-  const formatTooltip = (value: number) => {
+  const formatTooltip = (value: number): string => {
     if (activeMetric === 'steps') {
       return `${value.toLocaleString()} steps`;
     } else if (activeMetric === 'calories') {
