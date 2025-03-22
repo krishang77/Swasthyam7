@@ -9,6 +9,7 @@ interface DashboardCardProps {
   children: React.ReactNode;
   fullWidth?: boolean;
   hoverable?: boolean;
+  onClick?: () => void;
 }
 
 const DashboardCard: React.FC<DashboardCardProps> = ({
@@ -18,6 +19,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   children,
   fullWidth = false,
   hoverable = true,
+  onClick,
 }) => {
   return (
     <div 
@@ -25,8 +27,10 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
         "glass-card rounded-xl overflow-hidden",
         hoverable && "card-hover",
         fullWidth ? "w-full" : "w-full md:w-auto",
+        onClick && "cursor-pointer",
         className
       )}
+      onClick={onClick}
     >
       {(title || subtitle) && (
         <div className="p-5 border-b border-border/40">
