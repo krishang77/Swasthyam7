@@ -1,12 +1,14 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Calendar, ChevronDown, ChevronUp, Clock, Dumbbell, MoreHorizontal, Plus, Timer, Weight } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from "@/hooks/use-toast";
 import DashboardCard from '@/components/dashboard/DashboardCard';
 import ProgressRing from '@/components/ui/ProgressRing';
 import FadeIn from '@/components/animations/FadeIn';
+import WorkoutPlanForm from '@/components/workouts/WorkoutPlanForm';
 
 // Sample workout plans
 const workoutPlans = [
@@ -195,6 +197,8 @@ const Workouts = () => {
   const [activeTab, setActiveTab] = useState('plans');
   const [expandedPlan, setExpandedPlan] = useState<number | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
+  const [createPlanOpen, setCreatePlanOpen] = useState(false);
+  const { toast } = useToast();
   
   const togglePlan = (planId: number) => {
     if (expandedPlan === planId) {
@@ -212,6 +216,14 @@ const Workouts = () => {
     setSelectedWorkout(null);
   };
 
+  const handleCreatePlan = () => {
+    setCreatePlanOpen(false);
+    toast({
+      title: "Workout Plan Created",
+      description: "Your new workout plan has been created successfully.",
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-6 w-full">
@@ -223,7 +235,7 @@ const Workouts = () => {
                 Manage your training programs and exercise routines
               </p>
             </div>
-            <Button className="mt-4 md:mt-0" size="sm">
+            <Button className="mt-4 md:mt-0" size="sm" onClick={() => setCreatePlanOpen(true)}>
               <Plus className="h-4 w-4 mr-2" /> Create Plan
             </Button>
           </div>
@@ -689,6 +701,18 @@ const Workouts = () => {
           </Tabs>
         </FadeIn>
       </div>
+
+      <Dialog open={createPlanOpen} onOpenChange={setCreatePlanOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Workout Plan</DialogTitle>
+          </DialogHeader>
+          <WorkoutPlanForm 
+            onSubmit={handleCreatePlan}
+            onCancel={() => setCreatePlanOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
