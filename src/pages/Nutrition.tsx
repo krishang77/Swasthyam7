@@ -1,17 +1,15 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Apple, Check, Coffee, MoreHorizontal, Plus, Sun, Utensils, X } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Apple, Coffee, Plus, Sun, Utensils } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
 import DashboardCard from '@/components/dashboard/DashboardCard';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import FadeIn from '@/components/animations/FadeIn';
+import MealForm from '@/components/nutrition/MealForm';
+import MealPlanForm from '@/components/nutrition/MealPlanForm';
+import MealItem from '@/components/nutrition/MealItem';
 
 // Sample data
 const initialMeals = [
@@ -71,7 +69,6 @@ const Nutrition = () => {
   const [newMealPlan, setNewMealPlanOpen] = useState(false);
   const { toast } = useToast();
 
-  // Form state for adding/editing a meal
   const [mealForm, setMealForm] = useState({
     type: 'Breakfast',
     time: '',
@@ -131,7 +128,7 @@ const Nutrition = () => {
   const handleAddMeal = () => {
     const itemsArray = mealForm.items.split(',').map(item => item.trim());
     const newMeal = {
-      id: Math.max(...mealsToday.map(m => m.id)) + 1,
+      id: Math.max(...mealsToday.map(m => m.id), 0) + 1,
       type: mealForm.type,
       time: mealForm.time,
       items: itemsArray,
@@ -150,13 +147,7 @@ const Nutrition = () => {
       description: `Your ${mealForm.type.toLowerCase()} has been added successfully.`,
     });
     
-    // Update nutrition goals
-    const updatedGoals = { ...nutritionGoals };
-    updatedGoals.calories.current += newMeal.calories;
-    updatedGoals.protein.current += newMeal.macros.protein;
-    updatedGoals.carbs.current += newMeal.macros.carbs;
-    updatedGoals.fat.current += newMeal.macros.fat;
-    // This is a simplified update; in a real app, you'd need more sophisticated state management
+    updateNutritionTotals(newMeal, 'add');
   };
 
   const handleUpdateMeal = () => {
@@ -185,14 +176,25 @@ const Nutrition = () => {
       title: "Meal Updated",
       description: `Your ${mealForm.type.toLowerCase()} has been updated successfully.`,
     });
+    
+    if (currentMeal) {
+      updateNutritionTotals(currentMeal, 'remove');
+      updateNutritionTotals(updatedMeal, 'add');
+    }
   };
 
   const handleDeleteMeal = (mealId: number) => {
+    const mealToDelete = mealsToday.find(meal => meal.id === mealId);
+    
     setMealsToday(mealsToday.filter(meal => meal.id !== mealId));
     toast({
       title: "Meal Deleted",
       description: "The meal has been removed from your log.",
     });
+    
+    if (mealToDelete) {
+      updateNutritionTotals(mealToDelete, 'remove');
+    }
   };
 
   const handleCreateMealPlan = () => {
@@ -201,6 +203,15 @@ const Nutrition = () => {
       title: "Meal Plan Created",
       description: "Your new meal plan has been created successfully.",
     });
+  };
+
+  const updateNutritionTotals = (meal: (typeof initialMeals)[0], action: 'add' | 'remove') => {
+    const multiplier = action === 'add' ? 1 : -1;
+    
+    console.log(`${action === 'add' ? 'Adding' : 'Removing'} ${meal.calories} calories from total`);
+    console.log(`${action === 'add' ? 'Adding' : 'Removing'} ${meal.macros.protein}g protein from total`);
+    console.log(`${action === 'add' ? 'Adding' : 'Removing'} ${meal.macros.carbs}g carbs from total`);
+    console.log(`${action === 'add' ? 'Adding' : 'Removing'} ${meal.macros.fat}g fat from total`);
   };
 
   return (
@@ -294,84 +305,11 @@ const Nutrition = () => {
               
               {mealsToday.map((meal, index) => (
                 <FadeIn key={meal.id} delay={250 + (index * 50)} direction="up">
-                  <DashboardCard className="hover:shadow-md transition-all">
-                    <div className="flex flex-col">
-                      <div className="flex items-center">
-                        <div className="mr-4">
-                          {meal.type === 'Breakfast' && (
-                            <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-                              <Sun className="h-6 w-6 text-yellow-600" />
-                            </div>
-                          )}
-                          {meal.type === 'Lunch' && (
-                            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                              <Utensils className="h-6 w-6 text-green-600" />
-                            </div>
-                          )}
-                          {meal.type === 'Snack' && (
-                            <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                              <Apple className="h-6 w-6 text-orange-600" />
-                            </div>
-                          )}
-                          {meal.type === 'Dinner' && (
-                            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                              <Utensils className="h-6 w-6 text-blue-600" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center">
-                            <h3 className="text-xl font-semibold">{meal.type}</h3>
-                            <span className="text-sm text-muted-foreground ml-3">{meal.time}</span>
-                            <div className="ml-auto">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem onClick={() => openEditMealModal(meal)}>
-                                    Edit Meal
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem>View Details</DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleDeleteMeal(meal.id)}>
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                          </div>
-                          
-                          <div className="mt-2">
-                            <p className="text-sm">
-                              {meal.items.join(', ')}
-                            </p>
-                          </div>
-                          
-                          <div className="mt-4 flex flex-wrap gap-4">
-                            <div className="text-sm">
-                              <span className="font-medium">{meal.calories}</span>
-                              <span className="text-muted-foreground ml-1">calories</span>
-                            </div>
-                            <div className="text-sm">
-                              <span className="font-medium">{meal.macros.protein}g</span>
-                              <span className="text-muted-foreground ml-1">protein</span>
-                            </div>
-                            <div className="text-sm">
-                              <span className="font-medium">{meal.macros.carbs}g</span>
-                              <span className="text-muted-foreground ml-1">carbs</span>
-                            </div>
-                            <div className="text-sm">
-                              <span className="font-medium">{meal.macros.fat}g</span>
-                              <span className="text-muted-foreground ml-1">fat</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </DashboardCard>
+                  <MealItem 
+                    meal={meal} 
+                    onEdit={openEditMealModal} 
+                    onDelete={handleDeleteMeal} 
+                  />
                 </FadeIn>
               ))}
               
@@ -709,324 +647,47 @@ const Nutrition = () => {
         </FadeIn>
       </div>
 
-      {/* Add Meal Dialog */}
       <Dialog open={addMealOpen} onOpenChange={setAddMealOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Add Meal</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="meal-type" className="text-right">
-                Type
-              </Label>
-              <div className="col-span-3">
-                <Select onValueChange={handleSelectChange} defaultValue="Breakfast">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select meal type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Breakfast">Breakfast</SelectItem>
-                    <SelectItem value="Lunch">Lunch</SelectItem>
-                    <SelectItem value="Dinner">Dinner</SelectItem>
-                    <SelectItem value="Snack">Snack</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="time" className="text-right">
-                Time
-              </Label>
-              <Input
-                id="time"
-                name="time"
-                placeholder="e.g., 7:30 AM"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.time}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="items" className="text-right">
-                Items
-              </Label>
-              <Input
-                id="items"
-                name="items"
-                placeholder="e.g., Eggs, Toast, Avocado"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.items}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="calories" className="text-right">
-                Calories
-              </Label>
-              <Input
-                id="calories"
-                name="calories"
-                type="number"
-                placeholder="e.g., 450"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.calories}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="protein" className="text-right">
-                Protein (g)
-              </Label>
-              <Input
-                id="protein"
-                name="protein"
-                type="number"
-                placeholder="e.g., 25"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.protein}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="carbs" className="text-right">
-                Carbs (g)
-              </Label>
-              <Input
-                id="carbs"
-                name="carbs"
-                type="number"
-                placeholder="e.g., 40"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.carbs}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="fat" className="text-right">
-                Fat (g)
-              </Label>
-              <Input
-                id="fat"
-                name="fat"
-                type="number"
-                placeholder="e.g., 15"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.fat}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAddMealOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddMeal}>
-              <Plus className="mr-2 h-4 w-4" /> Add Meal
-            </Button>
-          </DialogFooter>
+          <MealForm
+            isEditing={false}
+            mealForm={mealForm}
+            handleInputChange={handleInputChange}
+            handleSelectChange={handleSelectChange}
+            handleSubmit={handleAddMeal}
+            onCancel={() => setAddMealOpen(false)}
+          />
         </DialogContent>
       </Dialog>
 
-      {/* Edit Meal Dialog */}
       <Dialog open={editMealOpen} onOpenChange={setEditMealOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Meal</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="meal-type" className="text-right">
-                Type
-              </Label>
-              <div className="col-span-3">
-                <Select onValueChange={handleSelectChange} defaultValue={mealForm.type}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select meal type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Breakfast">Breakfast</SelectItem>
-                    <SelectItem value="Lunch">Lunch</SelectItem>
-                    <SelectItem value="Dinner">Dinner</SelectItem>
-                    <SelectItem value="Snack">Snack</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="time" className="text-right">
-                Time
-              </Label>
-              <Input
-                id="time"
-                name="time"
-                placeholder="e.g., 7:30 AM"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.time}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="items" className="text-right">
-                Items
-              </Label>
-              <Input
-                id="items"
-                name="items"
-                placeholder="e.g., Eggs, Toast, Avocado"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.items}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="calories" className="text-right">
-                Calories
-              </Label>
-              <Input
-                id="calories"
-                name="calories"
-                type="number"
-                placeholder="e.g., 450"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.calories}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="protein" className="text-right">
-                Protein (g)
-              </Label>
-              <Input
-                id="protein"
-                name="protein"
-                type="number"
-                placeholder="e.g., 25"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.protein}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="carbs" className="text-right">
-                Carbs (g)
-              </Label>
-              <Input
-                id="carbs"
-                name="carbs"
-                type="number"
-                placeholder="e.g., 40"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.carbs}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="fat" className="text-right">
-                Fat (g)
-              </Label>
-              <Input
-                id="fat"
-                name="fat"
-                type="number"
-                placeholder="e.g., 15"
-                className="col-span-3"
-                onChange={handleInputChange}
-                value={mealForm.fat}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditMealOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleUpdateMeal}>
-              <Check className="mr-2 h-4 w-4" /> Update Meal
-            </Button>
-          </DialogFooter>
+          <MealForm
+            isEditing={true}
+            mealForm={mealForm}
+            handleInputChange={handleInputChange}
+            handleSelectChange={handleSelectChange}
+            handleSubmit={handleUpdateMeal}
+            onCancel={() => setEditMealOpen(false)}
+          />
         </DialogContent>
       </Dialog>
 
-      {/* Create Meal Plan Dialog */}
       <Dialog open={newMealPlan} onOpenChange={setNewMealPlanOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create New Meal Plan</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="plan-name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="plan-name"
-                placeholder="e.g., Cutting Plan"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
-                Description
-              </Label>
-              <Input
-                id="description"
-                placeholder="Brief description of your plan"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="calories" className="text-right">
-                Daily Calories
-              </Label>
-              <Input
-                id="calories"
-                type="number"
-                placeholder="e.g., 2200"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="protein" className="text-right">
-                Protein (%)
-              </Label>
-              <Input
-                id="protein"
-                type="number"
-                placeholder="e.g., 30"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="carbs" className="text-right">
-                Carbs (%)
-              </Label>
-              <Input
-                id="carbs"
-                type="number"
-                placeholder="e.g., 40"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="fat" className="text-right">
-                Fat (%)
-              </Label>
-              <Input
-                id="fat"
-                type="number"
-                placeholder="e.g., 30"
-                className="col-span-3"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNewMealPlanOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateMealPlan}>
-              <Plus className="mr-2 h-4 w-4" /> Create Plan
-            </Button>
-          </DialogFooter>
+          <MealPlanForm
+            onSubmit={handleCreateMealPlan}
+            onCancel={() => setNewMealPlanOpen(false)}
+          />
         </DialogContent>
       </Dialog>
     </div>
