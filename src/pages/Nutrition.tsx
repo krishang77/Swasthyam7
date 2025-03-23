@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,6 +11,8 @@ import FadeIn from '@/components/animations/FadeIn';
 import MealForm from '@/components/nutrition/MealForm';
 import MealPlanForm from '@/components/nutrition/MealPlanForm';
 import MealItem from '@/components/nutrition/MealItem';
+import { ActionModal } from '@/components/ui/action-modal';
+import FoodSearch from '@/components/nutrition/FoodSearch';
 
 // Sample data
 const initialMeals = [
@@ -67,6 +70,9 @@ const Nutrition = () => {
   const [editMealOpen, setEditMealOpen] = useState(false);
   const [currentMeal, setCurrentMeal] = useState<(typeof initialMeals)[0] | null>(null);
   const [newMealPlan, setNewMealPlanOpen] = useState(false);
+  const [foodSearchOpen, setFoodSearchOpen] = useState(false);
+  const [mealDetailsOpen, setMealDetailsOpen] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState<(typeof initialMeals)[0] | null>(null);
   const { toast } = useToast();
 
   const [mealForm, setMealForm] = useState({
@@ -123,6 +129,11 @@ const Nutrition = () => {
       fat: meal.macros.fat.toString()
     });
     setEditMealOpen(true);
+  };
+  
+  const openMealDetails = (meal: (typeof initialMeals)[0]) => {
+    setSelectedMeal(meal);
+    setMealDetailsOpen(true);
   };
 
   const handleAddMeal = () => {
@@ -202,6 +213,28 @@ const Nutrition = () => {
     toast({
       title: "Meal Plan Created",
       description: "Your new meal plan has been created successfully.",
+    });
+  };
+  
+  const handleFoodSearch = (food: string) => {
+    setFoodSearchOpen(false);
+    toast({
+      title: "Food Added",
+      description: `${food} has been added to your meal log.`,
+    });
+  };
+  
+  const viewRecipe = (recipeName: string) => {
+    toast({
+      title: "Recipe Selected",
+      description: `Viewing recipe for ${recipeName}.`,
+    });
+  };
+  
+  const viewMealPlan = (planName: string) => {
+    toast({
+      title: "Meal Plan Selected",
+      description: `Viewing details for ${planName} meal plan.`,
     });
   };
 
@@ -308,7 +341,8 @@ const Nutrition = () => {
                   <MealItem 
                     meal={meal} 
                     onEdit={openEditMealModal} 
-                    onDelete={handleDeleteMeal} 
+                    onDelete={handleDeleteMeal}
+                    onViewDetails={() => openMealDetails(meal)}
                   />
                 </FadeIn>
               ))}
@@ -519,7 +553,13 @@ const Nutrition = () => {
                             <span className="font-medium">70g (30%)</span>
                           </div>
                         </div>
-                        <Button variant="outline" className="w-full mt-6">View Plan</Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full mt-6"
+                          onClick={() => viewMealPlan("Balanced Plan")}
+                        >
+                          View Plan
+                        </Button>
                       </div>
                       
                       <div className="glass-card p-5 rounded-xl hover:shadow-lg transition-all">
@@ -550,7 +590,12 @@ const Nutrition = () => {
                             <span className="font-medium">65g (25%)</span>
                           </div>
                         </div>
-                        <Button className="w-full mt-6">View Plan</Button>
+                        <Button 
+                          className="w-full mt-6"
+                          onClick={() => viewMealPlan("High Protein Plan")}
+                        >
+                          View Plan
+                        </Button>
                       </div>
                       
                       <div className="glass-card p-5 rounded-xl hover:shadow-lg transition-all">
@@ -576,7 +621,13 @@ const Nutrition = () => {
                             <span className="font-medium">95g (45%)</span>
                           </div>
                         </div>
-                        <Button variant="outline" className="w-full mt-6">View Plan</Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full mt-6"
+                          onClick={() => viewMealPlan("Low Carb Plan")}
+                        >
+                          View Plan
+                        </Button>
                       </div>
                     </div>
                     
@@ -602,7 +653,12 @@ const Nutrition = () => {
                           <span className="text-muted-foreground">380 cal</span>
                           <span className="text-muted-foreground">24g protein</span>
                         </div>
-                        <Button variant="ghost" size="sm" className="mt-4 w-full">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="mt-4 w-full"
+                          onClick={() => viewRecipe("Protein-Packed Oatmeal Bowl")}
+                        >
                           View Recipe
                         </Button>
                       </div>
@@ -618,7 +674,12 @@ const Nutrition = () => {
                           <span className="text-muted-foreground">420 cal</span>
                           <span className="text-muted-foreground">18g protein</span>
                         </div>
-                        <Button variant="ghost" size="sm" className="mt-4 w-full">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="mt-4 w-full"
+                          onClick={() => viewRecipe("Quinoa & Vegetable Bowl")}
+                        >
                           View Recipe
                         </Button>
                       </div>
@@ -634,7 +695,12 @@ const Nutrition = () => {
                           <span className="text-muted-foreground">320 cal</span>
                           <span className="text-muted-foreground">22g protein</span>
                         </div>
-                        <Button variant="ghost" size="sm" className="mt-4 w-full">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="mt-4 w-full"
+                          onClick={() => viewRecipe("Greek Yogurt Parfait")}
+                        >
                           View Recipe
                         </Button>
                       </div>
@@ -690,6 +756,72 @@ const Nutrition = () => {
           />
         </DialogContent>
       </Dialog>
+      
+      <Dialog open={foodSearchOpen} onOpenChange={setFoodSearchOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Search Food Items</DialogTitle>
+          </DialogHeader>
+          <FoodSearch 
+            onSelect={handleFoodSearch}
+            onCancel={() => setFoodSearchOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+      
+      <ActionModal
+        title="Meal Details"
+        isOpen={mealDetailsOpen}
+        onOpenChange={setMealDetailsOpen}
+      >
+        {selectedMeal && (
+          <div className="space-y-4 py-2">
+            <div className="flex justify-between">
+              <h3 className="font-medium text-lg">{selectedMeal.type}</h3>
+              <span className="text-muted-foreground">{selectedMeal.time}</span>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="font-medium">Items:</h4>
+              <ul className="list-disc list-inside">
+                {selectedMeal.items.map((item, idx) => (
+                  <li key={idx} className="text-sm">{item}</li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h4 className="font-medium">Calories:</h4>
+                <p>{selectedMeal.calories} kcal</p>
+              </div>
+              <div>
+                <h4 className="font-medium">Macros:</h4>
+                <p className="text-sm">Protein: {selectedMeal.macros.protein}g</p>
+                <p className="text-sm">Carbs: {selectedMeal.macros.carbs}g</p>
+                <p className="text-sm">Fat: {selectedMeal.macros.fat}g</p>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setMealDetailsOpen(false)}
+              >
+                Close
+              </Button>
+              <Button 
+                onClick={() => {
+                  setMealDetailsOpen(false);
+                  openEditMealModal(selectedMeal);
+                }}
+              >
+                Edit Meal
+              </Button>
+            </div>
+          </div>
+        )}
+      </ActionModal>
     </div>
   );
 };

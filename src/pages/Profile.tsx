@@ -28,6 +28,10 @@ const Profile = () => {
   const { toast } = useToast();
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [connectedAppsOpen, setConnectedAppsOpen] = useState(false);
+  const [privacySettingsOpen, setPrivacySettingsOpen] = useState(false);
+  const [languageSettingsOpen, setLanguageSettingsOpen] = useState(false);
 
   const handleEditProfileSubmit = () => {
     toast({
@@ -52,6 +56,41 @@ const Profile = () => {
     });
     // In a real application, this would redirect to login or clear auth state
   };
+  
+  const handlePhotoUpload = () => {
+    toast({
+      title: "Upload photo",
+      description: "Photo upload functionality would open here.",
+    });
+  };
+  
+  const handleLanguageSettings = () => {
+    toast({
+      title: "Language settings",
+      description: "Language settings would open here.",
+    });
+  };
+  
+  const handleNotificationSettings = () => {
+    toast({
+      title: "Notification settings",
+      description: "Notification settings would open here.",
+    });
+  };
+  
+  const handleConnectedApps = () => {
+    toast({
+      title: "Connected apps",
+      description: "Connected apps settings would open here.",
+    });
+  };
+  
+  const handlePrivacySettings = () => {
+    toast({
+      title: "Privacy settings",
+      description: "Privacy settings would open here.",
+    });
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -74,10 +113,7 @@ const Profile = () => {
                   </div>
                   <button 
                     className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full hover:bg-primary/80"
-                    onClick={() => toast({
-                      title: "Upload photo",
-                      description: "Photo upload functionality would open here.",
-                    })}
+                    onClick={handlePhotoUpload}
                   >
                     <Camera className="h-4 w-4" />
                   </button>
@@ -215,10 +251,7 @@ const Profile = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => toast({
-                      title: "Language settings",
-                      description: "Language settings would open here.",
-                    })}
+                    onClick={handleLanguageSettings}
                   >
                     <Globe className="mr-2 h-4 w-4" /> Change
                   </Button>
@@ -255,10 +288,7 @@ const Profile = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => toast({
-                        title: "Notification settings",
-                        description: "Notification settings would open here.",
-                      })}
+                      onClick={handleNotificationSettings}
                     >
                       Manage
                     </Button>
@@ -268,10 +298,7 @@ const Profile = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => toast({
-                        title: "Connected apps",
-                        description: "Connected apps settings would open here.",
-                      })}
+                      onClick={handleConnectedApps}
                     >
                       Manage
                     </Button>
@@ -281,10 +308,7 @@ const Profile = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => toast({
-                        title: "Privacy settings",
-                        description: "Privacy settings would open here.",
-                      })}
+                      onClick={handlePrivacySettings}
                     >
                       Manage
                     </Button>

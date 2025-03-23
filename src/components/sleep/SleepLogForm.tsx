@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { BedIcon } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from "@/hooks/use-toast";
 
 interface SleepLogFormProps {
   onSubmit: () => void;
@@ -14,6 +15,7 @@ interface SleepLogFormProps {
 }
 
 const SleepLogForm: React.FC<SleepLogFormProps> = ({ onSubmit, onCancel }) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     sleepTime: '22:00',
@@ -39,6 +41,10 @@ const SleepLogForm: React.FC<SleepLogFormProps> = ({ onSubmit, onCancel }) => {
 
   const handleSubmit = () => {
     console.log('Submitting sleep log:', formData);
+    toast({
+      title: "Sleep log added",
+      description: "Your sleep data has been recorded successfully.",
+    });
     onSubmit();
   };
 
