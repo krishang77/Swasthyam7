@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Activity, 
   Heart, 
@@ -8,7 +7,8 @@ import {
   TrendingUp, 
   BarChart, 
   Calendar,
-  Zap
+  Zap,
+  Plus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DashboardCard from '@/components/dashboard/DashboardCard';
@@ -16,6 +16,11 @@ import MetricCard from '@/components/dashboard/MetricCard';
 import ActivityChart from '@/components/dashboard/ActivityChart';
 import ProgressRing from '@/components/ui/ProgressRing';
 import FadeIn from '@/components/animations/FadeIn';
+import { ActionModal } from '@/components/ui/action-modal';
+import ActivityForm from '@/components/activity/ActivityForm';
+import SleepLogForm from '@/components/sleep/SleepLogForm';
+import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 // Sample data
 const activityData = [
@@ -37,6 +42,48 @@ const workoutSessions = [
 ];
 
 const Index = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [addActivityOpen, setAddActivityOpen] = useState(false);
+  const [logSleepOpen, setLogSleepOpen] = useState(false);
+
+  const handleAddActivitySubmit = () => {
+    toast({
+      title: "Activity added",
+      description: "Your activity has been logged successfully.",
+    });
+    setAddActivityOpen(false);
+  };
+
+  const handleLogSleepSubmit = () => {
+    toast({
+      title: "Sleep logged",
+      description: "Your sleep data has been logged successfully.",
+    });
+    setLogSleepOpen(false);
+  };
+
+  const navigateToSchedule = () => {
+    navigate('/workouts');
+    toast({
+      description: "Navigated to workout schedule",
+    });
+  };
+
+  const navigateToTrackMeal = () => {
+    navigate('/nutrition');
+    toast({
+      description: "Navigated to nutrition tracking",
+    });
+  };
+
+  const navigateToAllActivities = () => {
+    navigate('/activity');
+    toast({
+      description: "Navigated to activity tracking",
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
@@ -201,7 +248,12 @@ const Index = () => {
                 ))}
               </div>
               <div className="mt-4">
-                <Button className="w-full">View Full Schedule</Button>
+                <Button 
+                  className="w-full"
+                  onClick={navigateToSchedule}
+                >
+                  View Full Schedule
+                </Button>
               </div>
             </DashboardCard>
           </FadeIn>
@@ -264,7 +316,12 @@ const Index = () => {
                 </div>
               </div>
               <div className="mt-6">
-                <Button className="w-full">Track Meal</Button>
+                <Button 
+                  className="w-full"
+                  onClick={navigateToTrackMeal}
+                >
+                  Track Meal
+                </Button>
               </div>
             </DashboardCard>
           </FadeIn>
@@ -322,12 +379,44 @@ const Index = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <Button variant="outline" className="w-full">View All Activities</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={navigateToAllActivities}
+                >
+                  View All Activities
+                </Button>
               </div>
             </DashboardCard>
           </FadeIn>
         </div>
       </div>
+
+      {/* Add Activity Modal */}
+      <ActionModal
+        title="Add Activity"
+        description="Log a new activity to track your progress"
+        isOpen={addActivityOpen}
+        onOpenChange={setAddActivityOpen}
+      >
+        <ActivityForm 
+          onSubmit={handleAddActivitySubmit} 
+          onCancel={() => setAddActivityOpen(false)} 
+        />
+      </ActionModal>
+
+      {/* Log Sleep Modal */}
+      <ActionModal
+        title="Log Sleep"
+        description="Record your sleep data"
+        isOpen={logSleepOpen}
+        onOpenChange={setLogSleepOpen}
+      >
+        <SleepLogForm 
+          onSubmit={handleLogSleepSubmit} 
+          onCancel={() => setLogSleepOpen(false)} 
+        />
+      </ActionModal>
     </div>
   );
 };

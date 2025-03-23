@@ -7,6 +7,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import DashboardCard from '@/components/dashboard/DashboardCard';
 import { PieChart, Pie, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
 import FadeIn from '@/components/animations/FadeIn';
+import { ActionModal } from '@/components/ui/action-modal';
+import ActivityForm from '@/components/activity/ActivityForm';
+import { useToast } from '@/components/ui/use-toast';
 
 // Sample data
 const recentActivities = [
@@ -76,7 +79,46 @@ const activityDistribution = [
 ];
 
 const Activity = () => {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('activity');
+  const [addActivityOpen, setAddActivityOpen] = useState(false);
+  const [expandedActivities, setExpandedActivities] = useState(5);
+
+  const handleAddActivitySubmit = () => {
+    toast({
+      title: "Activity added",
+      description: "Your activity has been logged successfully.",
+    });
+    setAddActivityOpen(false);
+  };
+
+  const handleViewDetails = (activityId: number) => {
+    toast({
+      title: "View activity details",
+      description: `Viewing details for activity #${activityId}`,
+    });
+  };
+
+  const handleEditActivity = (activityId: number) => {
+    toast({
+      title: "Edit activity",
+      description: `Editing activity #${activityId}`,
+    });
+  };
+
+  const handleDeleteActivity = (activityId: number) => {
+    toast({
+      title: "Activity deleted",
+      description: `Activity #${activityId} has been deleted`,
+    });
+  };
+
+  const loadMoreActivities = () => {
+    setExpandedActivities(prevCount => prevCount + 5);
+    toast({
+      description: "Loaded more activities",
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col pt-24 pb-16">
@@ -89,7 +131,11 @@ const Activity = () => {
                 Monitor your activities and track your progress
               </p>
             </div>
-            <Button className="mt-4 md:mt-0" size="sm">
+            <Button 
+              className="mt-4 md:mt-0" 
+              size="sm"
+              onClick={() => setAddActivityOpen(true)}
+            >
               <Plus className="h-4 w-4 mr-2" /> Add Activity
             </Button>
           </div>
@@ -104,7 +150,7 @@ const Activity = () => {
             </TabsList>
             
             <TabsContent value="activity" className="space-y-6">
-              {recentActivities.map((activity, index) => (
+              {recentActivities.slice(0, expandedActivities).map((activity, index) => (
                 <FadeIn key={activity.id} delay={200 + (index * 50)} direction="up">
                   <DashboardCard className="hover:shadow-md transition-all">
                     <div className="flex flex-col md:flex-row md:items-center">
@@ -120,9 +166,15 @@ const Activity = () => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>Edit Activity</DropdownMenuItem>
-                                <DropdownMenuItem>View Details</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleEditActivity(activity.id)}>
+                                  Edit Activity
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleViewDetails(activity.id)}>
+                                  View Details
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDeleteActivity(activity.id)}>
+                                  Delete
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
@@ -152,8 +204,25 @@ const Activity = () => {
                 </FadeIn>
               ))}
               
-              <Button variant="outline" className="w-full mt-4">
-                Load More Activities
+              {expandedActivities < recentActivities.length && (
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-4"
+                  onClick={loadMoreActivities}
+                >
+                  Load More Activities
+                </Button>
+              )}
+              
+              <Button 
+                variant="default" 
+                className="w-full mt-4"
+                onClick={() => toast({
+                  title: "View all activities",
+                  description: "This would show a full history of all activities.",
+                })}
+              >
+                View All Activities
               </Button>
             </TabsContent>
             
@@ -355,6 +424,19 @@ const Activity = () => {
           </Tabs>
         </FadeIn>
       </div>
+
+      {/* Add Activity Modal */}
+      <ActionModal
+        title="Add Activity"
+        description="Log a new activity to track your progress"
+        isOpen={addActivityOpen}
+        onOpenChange={setAddActivityOpen}
+      >
+        <ActivityForm 
+          onSubmit={handleAddActivitySubmit} 
+          onCancel={() => setAddActivityOpen(false)} 
+        />
+      </ActionModal>
     </div>
   );
 };
