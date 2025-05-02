@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -13,10 +13,19 @@ import { Label } from '@/components/ui/label';
 import { Settings } from 'lucide-react';
 import { useChatbotApi } from '@/hooks/use-chatbot-api';
 
+const DEFAULT_API_KEY = "AIzaSyAF7N2mvoP36U9FrUYY6OmQGzM9jUC6cBg";
+
 const ChatbotSettings: React.FC = () => {
   const { apiKey, isConfigured, saveApiKey, clearApiKey } = useChatbotApi();
   const [newApiKey, setNewApiKey] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+
+  // Set default API key if not configured yet
+  useEffect(() => {
+    if (!isConfigured) {
+      setNewApiKey(DEFAULT_API_KEY);
+    }
+  }, [isConfigured]);
 
   const handleSave = () => {
     if (saveApiKey(newApiKey)) {
@@ -44,11 +53,11 @@ const ChatbotSettings: React.FC = () => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Chatbot API Settings</DialogTitle>
+          <DialogTitle>Gemini API Settings</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="api-key">API Key</Label>
+            <Label htmlFor="api-key">Gemini API Key</Label>
             <Input
               id="api-key"
               type="password"
@@ -61,7 +70,7 @@ const ChatbotSettings: React.FC = () => {
             {isConfigured ? (
               <p>API key is configured. You can update or remove it.</p>
             ) : (
-              <p>Please enter your chatbot API key to enable the health assistant.</p>
+              <p>Use the default API key or enter your own Gemini API key.</p>
             )}
           </div>
           <div className="flex justify-end space-x-2 pt-4">

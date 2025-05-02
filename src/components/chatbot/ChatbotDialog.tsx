@@ -32,7 +32,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: 'Hi there! I\'m your health assistant. How can I help you today?',
+      content: "Hi there! I'm your health assistant powered by Gemini AI. How can I help you today?",
       role: 'assistant',
       timestamp: new Date(),
     },
@@ -57,7 +57,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
     if (!isConfigured) {
       toast({
         title: 'API Key Required',
-        description: 'Please configure your chatbot API key in settings.',
+        description: 'Please configure your Gemini API key in settings.',
         variant: 'destructive',
       });
       return;
@@ -101,10 +101,10 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('Error calling chat API:', error);
+      console.error('Error calling Gemini API:', error);
       toast({
         title: 'Error',
-        description: 'Failed to get a response. Please try again.',
+        description: 'Failed to get a response from Gemini. Please check your API key and try again.',
         variant: 'destructive',
       });
     } finally {
@@ -116,7 +116,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md md:max-w-lg max-h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Health Assistant</DialogTitle>
+          <DialogTitle>Gemini Health Assistant</DialogTitle>
         </DialogHeader>
         
         <ChatbotSettings />
@@ -132,7 +132,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
         
         {!isConfigured && (
           <div className="bg-muted/50 p-3 rounded-md mb-4 text-sm">
-            Please configure your API key in settings to enable the health assistant.
+            Please configure your Gemini API key in settings to enable the health assistant.
           </div>
         )}
         
@@ -144,7 +144,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
           className="flex items-center gap-2 pt-2 border-t"
         >
           <Input
-            placeholder="Type your message..."
+            placeholder="Ask Gemini about health and fitness..."
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             disabled={isLoading || !isConfigured}

@@ -12,11 +12,11 @@ const ChatbotButton = () => {
   return (
     <>
       <Button
-        className="rounded-full p-3 h-12 w-12 fixed bottom-6 right-6 shadow-lg z-40"
+        className="rounded-full p-3 h-14 w-14 fixed bottom-6 right-6 shadow-lg z-40 bg-primary hover:bg-primary/90 animate-pulse"
         onClick={() => setIsChatOpen(true)}
-        aria-label="Open health assistant"
+        aria-label="Open Gemini health assistant"
       >
-        <MessageCircle className="h-5 w-5" />
+        <MessageCircle className="h-6 w-6" />
       </Button>
 
       <ChatbotDialog 

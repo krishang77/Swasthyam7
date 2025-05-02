@@ -9,7 +9,7 @@ export const useChatbotApi = () => {
 
   // Load API key from localStorage on component mount
   useEffect(() => {
-    const storedApiKey = localStorage.getItem('chatbot_api_key');
+    const storedApiKey = localStorage.getItem('gemini_api_key');
     if (storedApiKey) {
       setApiKey(storedApiKey);
       setIsConfigured(true);
@@ -28,12 +28,12 @@ export const useChatbotApi = () => {
     }
 
     try {
-      localStorage.setItem('chatbot_api_key', key);
+      localStorage.setItem('gemini_api_key', key);
       setApiKey(key);
       setIsConfigured(true);
       toast({
         title: "Success",
-        description: "Chatbot API key saved successfully",
+        description: "Gemini API key saved successfully",
       });
       return true;
     } catch (error) {
@@ -50,12 +50,12 @@ export const useChatbotApi = () => {
   // Clear API key from localStorage
   const clearApiKey = () => {
     try {
-      localStorage.removeItem('chatbot_api_key');
+      localStorage.removeItem('gemini_api_key');
       setApiKey(null);
       setIsConfigured(false);
       toast({
         title: "Success",
-        description: "Chatbot API key removed successfully",
+        description: "Gemini API key removed successfully",
       });
       return true;
     } catch (error) {
