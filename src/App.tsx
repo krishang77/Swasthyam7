@@ -14,6 +14,7 @@ import Workouts from "./pages/Workouts";
 import Goals from "./pages/Goals";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import ChatbotButton from "./components/chatbot/ChatbotButton";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
             </Routes>
           </main>
           <Footer />
+          <ChatbotButton />
         </div>
       </BrowserRouter>
     </TooltipProvider>
