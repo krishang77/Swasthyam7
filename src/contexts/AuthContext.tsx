@@ -21,7 +21,7 @@ const DEMO_USERS = [
   { email: 'user@example.com', name: 'Demo User', password: 'password123' }
 ];
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
