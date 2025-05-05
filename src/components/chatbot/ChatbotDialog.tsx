@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 import ChatMessage from './ChatMessage';
 import ChatbotSettings from './ChatbotSettings';
 import { useToast } from '@/hooks/use-toast';
@@ -42,16 +42,35 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { apiKey, isConfigured } = useChatbotApi();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
+  // Scroll to bottom when messages change - optimized with useCallback
+  const scrollToBottom = useCallback(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, []);
 
-  // Handle sending message
-  const handleSendMessage = async () => {
+  useEffect(() => {
+    if (isOpen) {
+      // Add small delay to ensure the dialog is fully rendered
+      setTimeout(scrollToBottom, 100);
+      
+      // Focus the input field after dialog opens
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 150);
+    }
+  }, [isOpen, scrollToBottom]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  // Handle sending message - optimized with useCallback
+  const handleSendMessage = useCallback(async () => {
     if (!inputMessage.trim()) return;
     
     if (!isConfigured) {
@@ -75,20 +94,22 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
     setIsLoading(true);
 
     try {
-      // Prepare the API request with all previous messages for context
-      const chatMessages = messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
+      // Only send the last few messages to reduce payload size
+      const recentMessages = messages
+        .slice(-5) // Only include the last 5 messages for context
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
       
       // Add the new user message
-      chatMessages.push({
+      recentMessages.push({
         role: 'user',
         content: userMessage.content
       });
       
       const response = await getChatCompletion({
-        messages: chatMessages,
+        messages: recentMessages,
         apiKey: apiKey || ''
       });
       
@@ -110,18 +131,17 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [inputMessage, isConfigured, messages, apiKey, toast]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md md:max-w-lg max-h-[80vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Gemini Health Assistant</DialogTitle>
+      <DialogContent className="sm:max-w-md md:max-w-lg max-h-[80vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-4 border-b">
+          <DialogTitle className="text-center">Gemini Health Assistant</DialogTitle>
+          <ChatbotSettings />
         </DialogHeader>
         
-        <ChatbotSettings />
-        
-        <ScrollArea className="flex-grow py-4 px-1">
+        <ScrollArea className="flex-grow py-4 px-4 h-[350px]">
           <div className="space-y-4 min-h-[300px]">
             {messages.map((message) => (
               <ChatMessage key={message.id} message={message} />
@@ -131,7 +151,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
         </ScrollArea>
         
         {!isConfigured && (
-          <div className="bg-muted/50 p-3 rounded-md mb-4 text-sm">
+          <div className="bg-muted/50 p-3 mx-4 rounded-md mb-4 text-sm">
             Please configure your Gemini API key in settings to enable the health assistant.
           </div>
         )}
@@ -141,9 +161,10 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
             e.preventDefault();
             handleSendMessage();
           }}
-          className="flex items-center gap-2 pt-2 border-t"
+          className="flex items-center gap-2 p-4 border-t"
         >
           <Input
+            ref={inputRef}
             placeholder="Ask Gemini about health and fitness..."
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
@@ -155,7 +176,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
             size="icon" 
             disabled={isLoading || !isConfigured || !inputMessage.trim()}
           >
-            <Send className="h-4 w-4" />
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </form>
       </DialogContent>

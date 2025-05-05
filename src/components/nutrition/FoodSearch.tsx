@@ -20,10 +20,11 @@ const foodDatabase = [
 ];
 
 interface FoodSearchProps {
-  onFoodSelect: (food: any) => void;
+  onSelect: (food: any) => void; // Changed from onFoodSelect to onSelect to match usage
+  onCancel: () => void;
 }
 
-const FoodSearch: React.FC<FoodSearchProps> = ({ onFoodSelect }) => {
+const FoodSearch: React.FC<FoodSearchProps> = ({ onSelect, onCancel }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<typeof foodDatabase>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -56,7 +57,7 @@ const FoodSearch: React.FC<FoodSearchProps> = ({ onFoodSelect }) => {
   };
 
   const handleAddFood = (food: any) => {
-    onFoodSelect(food);
+    onSelect(food);
     toast({
       title: "Food Added",
       description: `${food.name} has been added to your meal.`,
@@ -108,6 +109,11 @@ const FoodSearch: React.FC<FoodSearchProps> = ({ onFoodSelect }) => {
           ))}
         </div>
       )}
+      
+      <div className="flex justify-end space-x-2">
+        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button variant="ghost" onClick={() => setSearchTerm('')}>Clear</Button>
+      </div>
     </div>
   );
 };

@@ -20,9 +20,10 @@ interface MealItemProps {
   };
   onEdit: (meal: any) => void;
   onDelete: (id: number) => void;
+  onViewDetails: (meal: any) => void; // Add this missing prop
 }
 
-const MealItem: React.FC<MealItemProps> = ({ meal, onEdit, onDelete }) => {
+const MealItem: React.FC<MealItemProps> = ({ meal, onEdit, onDelete, onViewDetails }) => {
   return (
     <DashboardCard className="hover:shadow-md transition-all">
       <div className="flex flex-col">
@@ -65,7 +66,9 @@ const MealItem: React.FC<MealItemProps> = ({ meal, onEdit, onDelete }) => {
                     <DropdownMenuItem onClick={() => onEdit(meal)}>
                       Edit Meal
                     </DropdownMenuItem>
-                    <DropdownMenuItem>View Details</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onViewDetails(meal)}>
+                      View Details
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onDelete(meal.id)}>
                       Delete
                     </DropdownMenuItem>
