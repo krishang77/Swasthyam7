@@ -44,10 +44,15 @@ export const getChatCompletion = async (
 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${request.apiKey}`;
     
-    // Optimize the payload structure
+    // Optimize the payload structure with improved instructions
     const geminiPayload = {
       contents: [{
-        parts: [{ text: lastUserMessage.content }]
+        parts: [{ 
+          text: `You are a helpful health and wellness assistant. Provide concise, well-formatted answers about nutrition, fitness, wellness, or medical information. 
+                  Use paragraphs for better readability. Always be friendly and supportive.
+                  
+                  User question: ${lastUserMessage.content}` 
+        }]
       }],
       generationConfig: {
         temperature: 0.7,
@@ -82,9 +87,12 @@ export const getChatCompletion = async (
 
     const data = await response.json();
     
-    // Extract the response text from the Gemini API response
-    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || 
-                        'I apologize, but I couldn\'t generate a response at the moment. Please try again.';
+    // Extract and format the response text from the Gemini API response
+    let responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                      'I apologize, but I couldn\'t generate a response at the moment. Please try again.';
+    
+    // Format the response for better readability
+    responseText = responseText.trim();
     
     // Cache the response for future use
     responseCache.set(cacheKey, responseText);
@@ -111,7 +119,7 @@ export const getChatCompletion = async (
       
       if (error.message.includes('API key')) {
         return {
-          response: 'There seems to be an issue with the API key. Please check your API key configuration in the settings.'
+          response: 'There seems to be an issue with the API connection. Please try again later.'
         };
       }
     }

@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Loader2 } from 'lucide-react';
 import ChatMessage from './ChatMessage';
-import ChatbotSettings from './ChatbotSettings';
 import { useToast } from '@/hooks/use-toast';
 import { useChatbotApi } from '@/hooks/use-chatbot-api';
 import { getChatCompletion } from '@/services/chatbotService';
@@ -32,7 +31,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: "Hi there! I'm your health assistant powered by Gemini AI. How can I help you today?",
+      content: "Hi there! I'm your health assistant powered by Gemini AI. How can I help you today? Ask me anything about health, fitness, nutrition, or wellness!",
       role: 'assistant',
       timestamp: new Date(),
     },
@@ -73,10 +72,10 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
   const handleSendMessage = useCallback(async () => {
     if (!inputMessage.trim()) return;
     
-    if (!isConfigured) {
+    if (!isConfigured && !apiKey) {
       toast({
-        title: 'API Key Required',
-        description: 'Please configure your Gemini API key in settings.',
+        title: 'Cannot connect to Gemini',
+        description: 'There was an issue with the API connection. Please try again later.',
         variant: 'destructive',
       });
       return;
@@ -125,7 +124,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
       console.error('Error calling Gemini API:', error);
       toast({
         title: 'Error',
-        description: 'Failed to get a response from Gemini. Please check your API key and try again.',
+        description: 'Failed to get a response. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -136,13 +135,12 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md md:max-w-lg max-h-[80vh] flex flex-col p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-4 border-b">
-          <DialogTitle className="text-center">Gemini Health Assistant</DialogTitle>
-          <ChatbotSettings />
+        <DialogHeader className="p-4 border-b bg-primary/10">
+          <DialogTitle className="text-center font-bold text-primary">Health Assistant</DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="flex-grow py-4 px-4 h-[350px]">
-          <div className="space-y-4 min-h-[300px]">
+        <ScrollArea className="flex-grow py-4 px-4 h-[400px] bg-gradient-to-b from-background to-background/80">
+          <div className="space-y-6 min-h-[300px]">
             {messages.map((message) => (
               <ChatMessage key={message.id} message={message} />
             ))}
@@ -150,31 +148,34 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
           </div>
         </ScrollArea>
         
-        {!isConfigured && (
-          <div className="bg-muted/50 p-3 mx-4 rounded-md mb-4 text-sm">
-            Please configure your Gemini API key in settings to enable the health assistant.
-          </div>
-        )}
-        
         <form 
           onSubmit={(e) => {
             e.preventDefault();
             handleSendMessage();
           }}
-          className="flex items-center gap-2 p-4 border-t"
+          className="flex items-center gap-2 p-4 border-t bg-muted/30"
         >
           <Input
             ref={inputRef}
-            placeholder="Ask Gemini about health and fitness..."
+            placeholder="Ask about health and wellness..."
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            disabled={isLoading || !isConfigured}
-            className="flex-1"
+            disabled={isLoading}
+            className="flex-1 shadow-sm"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (inputMessage.trim()) {
+                  handleSendMessage();
+                }
+              }
+            }}
           />
           <Button 
             type="submit" 
-            size="icon" 
-            disabled={isLoading || !isConfigured || !inputMessage.trim()}
+            size="icon"
+            className="bg-primary hover:bg-primary/90 transition-all duration-200 hover:scale-105"
+            disabled={isLoading || !inputMessage.trim()}
           >
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
