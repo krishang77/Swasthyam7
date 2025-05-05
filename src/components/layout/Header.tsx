@@ -61,8 +61,7 @@ const Header: React.FC = () => {
   // Get user's first name or full name for welcome message
   const userDisplayName = () => {
     if (!currentUser) return '';
-    const nameParts = currentUser.name.split(' ');
-    return nameParts[0]; // Return just the first name
+    return currentUser.name;
   };
 
   const userInitials = () => {
@@ -96,20 +95,6 @@ const Header: React.FC = () => {
             <Heart className="h-8 w-8 text-primary animate-pulse-ring" />
             <span className="text-xl font-semibold tracking-tight">VitalTrack</span>
           </NavLink>
-          
-          {/* Welcome message - shows when user is logged in */}
-          {currentUser && (
-            <div className="hidden md:flex ml-6 items-center">
-              <Avatar className="h-8 w-8 mr-2 bg-primary/10">
-                <AvatarFallback className="text-primary font-medium">
-                  {userInitials()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="animate-fade-in">
-                <span className="font-medium">Welcome, {userDisplayName()}</span>
-              </div>
-            </div>
-          )}
         </div>
         
         {/* Desktop Navigation */}
@@ -129,6 +114,10 @@ const Header: React.FC = () => {
         </nav>
         
         <div className="flex items-center space-x-4">
+          {currentUser && (
+            <span className="hidden md:inline-block font-medium">{userDisplayName()}</span>
+          )}
+          
           <Button
             variant="ghost"
             size="icon"
@@ -189,7 +178,7 @@ const Header: React.FC = () => {
                   {userInitials()}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-lg font-medium">Welcome, {currentUser.name}</span>
+              <span className="text-lg font-medium">{currentUser.name}</span>
             </div>
           )}
           
