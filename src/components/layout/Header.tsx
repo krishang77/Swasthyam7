@@ -13,16 +13,20 @@ import {
   Dumbbell, 
   Target, 
   User, 
-  X 
+  X,
+  LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/hooks/use-toast';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const location = useLocation();
+  const { currentUser, signOut } = useAuth();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -43,6 +47,14 @@ const Header: React.FC = () => {
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     document.documentElement.classList.toggle('dark');
+  };
+
+  const handleSignOut = () => {
+    signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out."
+    });
   };
 
   const navLinks = [
@@ -86,6 +98,12 @@ const Header: React.FC = () => {
         </nav>
         
         <div className="flex items-center space-x-4">
+          {currentUser && (
+            <span className="hidden md:inline-block text-sm font-medium">
+              Hi, {currentUser.name}
+            </span>
+          )}
+          
           <Button
             variant="ghost"
             size="icon"
@@ -107,6 +125,18 @@ const Header: React.FC = () => {
             </Button>
           </NavLink>
           
+          {currentUser && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleSignOut}
+              className="rounded-full bg-red-100 hover:bg-red-200 text-red-600 border-red-200"
+              aria-label="Sign Out"
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
+          )}
+          
           <Button 
             variant="ghost" 
             size="icon" 
@@ -127,6 +157,12 @@ const Header: React.FC = () => {
         )}
       >
         <nav className="flex flex-col items-center space-y-6 p-8">
+          {currentUser && (
+            <div className="mb-4 font-medium">
+              Hi, {currentUser.name}
+            </div>
+          )}
+          
           {navLinks.map(link => (
             <NavLink 
               key={link.path} 
@@ -154,6 +190,17 @@ const Header: React.FC = () => {
             <User className="h-5 w-5" />
             <span>Profile</span>
           </NavLink>
+          
+          {currentUser && (
+            <Button
+              variant="outline"
+              className="flex items-center justify-center space-x-2 w-full mt-4 border-red-200 hover:bg-red-100 text-red-600"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-5 w-5" />
+              <span>Sign Out</span>
+            </Button>
+          )}
         </nav>
       </div>
     </header>
