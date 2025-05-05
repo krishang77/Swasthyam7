@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -57,6 +58,22 @@ const Header: React.FC = () => {
     });
   };
 
+  // Get user's first name or full name for welcome message
+  const userDisplayName = () => {
+    if (!currentUser) return '';
+    const nameParts = currentUser.name.split(' ');
+    return nameParts[0]; // Return just the first name
+  };
+
+  const userInitials = () => {
+    if (!currentUser) return '';
+    return currentUser.name.split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   const navLinks = [
     { path: '/', label: 'Dashboard', icon: <Home className="h-5 w-5" /> },
     { path: '/activity', label: 'Activity', icon: <Activity className="h-5 w-5" /> },
@@ -79,6 +96,20 @@ const Header: React.FC = () => {
             <Heart className="h-8 w-8 text-primary animate-pulse-ring" />
             <span className="text-xl font-semibold tracking-tight">VitalTrack</span>
           </NavLink>
+          
+          {/* Welcome message - shows when user is logged in */}
+          {currentUser && (
+            <div className="hidden md:flex ml-6 items-center">
+              <Avatar className="h-8 w-8 mr-2 bg-primary/10">
+                <AvatarFallback className="text-primary font-medium">
+                  {userInitials()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="animate-fade-in">
+                <span className="font-medium">Welcome, {userDisplayName()}</span>
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Desktop Navigation */}
@@ -98,12 +129,6 @@ const Header: React.FC = () => {
         </nav>
         
         <div className="flex items-center space-x-4">
-          {currentUser && (
-            <span className="hidden md:inline-block text-sm font-medium">
-              Hi, {currentUser.name}
-            </span>
-          )}
-          
           <Button
             variant="ghost"
             size="icon"
@@ -158,8 +183,13 @@ const Header: React.FC = () => {
       >
         <nav className="flex flex-col items-center space-y-6 p-8">
           {currentUser && (
-            <div className="mb-4 font-medium">
-              Hi, {currentUser.name}
+            <div className="mb-4 flex flex-col items-center">
+              <Avatar className="h-16 w-16 mb-2">
+                <AvatarFallback className="text-xl text-primary bg-primary/10 font-medium">
+                  {userInitials()}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-lg font-medium">Welcome, {currentUser.name}</span>
             </div>
           )}
           
@@ -208,3 +238,4 @@ const Header: React.FC = () => {
 };
 
 export default Header;
+
