@@ -19,24 +19,33 @@ const ChatbotSettings: React.FC = () => {
   const { apiKey, isConfigured, saveApiKey, clearApiKey } = useChatbotApi();
   const [newApiKey, setNewApiKey] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [isUsingDefaultKey, setIsUsingDefaultKey] = useState(false);
 
-  // Set default API key if not configured yet
+  // Check if we're using the default API key
   useEffect(() => {
-    if (!isConfigured) {
-      setNewApiKey(DEFAULT_API_KEY);
+    if (apiKey === DEFAULT_API_KEY) {
+      setIsUsingDefaultKey(true);
+    } else {
+      setIsUsingDefaultKey(false);
     }
-  }, [isConfigured]);
+  }, [apiKey]);
+
+  // Set input field to match current API key when dialog opens
+  useEffect(() => {
+    if (isOpen && apiKey) {
+      setNewApiKey(apiKey);
+    }
+  }, [isOpen, apiKey]);
 
   const handleSave = () => {
     if (saveApiKey(newApiKey)) {
-      setNewApiKey('');
       setIsOpen(false);
     }
   };
 
   const handleClear = () => {
     if (clearApiKey()) {
-      setNewApiKey('');
+      setNewApiKey(DEFAULT_API_KEY);
     }
   };
 
@@ -67,16 +76,16 @@ const ChatbotSettings: React.FC = () => {
             />
           </div>
           <div className="text-sm text-muted-foreground">
-            {isConfigured ? (
-              <p>API key is configured. You can update or remove it.</p>
+            {isUsingDefaultKey ? (
+              <p>Using the default API key. You can update it with your own key.</p>
             ) : (
-              <p>Use the default API key or enter your own Gemini API key.</p>
+              <p>Using your custom API key. You can reset to the default key.</p>
             )}
           </div>
           <div className="flex justify-end space-x-2 pt-4">
-            {isConfigured && (
+            {!isUsingDefaultKey && (
               <Button variant="outline" onClick={handleClear}>
-                Remove API Key
+                Reset to Default
               </Button>
             )}
             <Button onClick={handleSave}>

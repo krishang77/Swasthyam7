@@ -31,6 +31,14 @@ export const getChatCompletion = async (
       throw new Error('No user message found');
     }
 
+    // Check if API key is provided and valid
+    if (!request.apiKey || request.apiKey.trim() === '') {
+      console.error('Missing or invalid API key');
+      return {
+        response: 'I need a valid API key to work properly. Please check your settings by clicking the gear icon in the top right of the chat window.'
+      };
+    }
+
     // Create a simple cache key based on the message content
     const cacheKey = lastUserMessage.content.trim().toLowerCase();
     

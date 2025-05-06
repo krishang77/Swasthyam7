@@ -2,6 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useToast } from './use-toast';
 
+// Default API key that will be used if no user-provided key is available
+const DEFAULT_API_KEY = "AIzaSyC8uE4Iv3Bz15CsE1yAj9G49giYmr2obmE";
+
 export const useChatbotApi = () => {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isConfigured, setIsConfigured] = useState<boolean>(false);
@@ -9,9 +12,24 @@ export const useChatbotApi = () => {
 
   // Load API key from localStorage on component mount
   useEffect(() => {
-    const storedApiKey = localStorage.getItem('gemini_api_key');
-    if (storedApiKey) {
-      setApiKey(storedApiKey);
+    try {
+      const storedApiKey = localStorage.getItem('gemini_api_key');
+      
+      // If there's a stored API key, use it
+      if (storedApiKey) {
+        setApiKey(storedApiKey);
+        setIsConfigured(true);
+      } else {
+        // If no stored API key, use the default key
+        setApiKey(DEFAULT_API_KEY);
+        setIsConfigured(true);
+        // Save the default key to localStorage
+        localStorage.setItem('gemini_api_key', DEFAULT_API_KEY);
+      }
+    } catch (error) {
+      console.error('Error loading API key:', error);
+      // Fall back to the default key if there's an error
+      setApiKey(DEFAULT_API_KEY);
       setIsConfigured(true);
     }
   }, []);
@@ -47,15 +65,17 @@ export const useChatbotApi = () => {
     }
   };
 
-  // Clear API key from localStorage
+  // Clear API key from localStorage and reset to default
   const clearApiKey = () => {
     try {
       localStorage.removeItem('gemini_api_key');
-      setApiKey(null);
-      setIsConfigured(false);
+      setApiKey(DEFAULT_API_KEY);
+      // Still considered configured with the default key
+      setIsConfigured(true);
+      localStorage.setItem('gemini_api_key', DEFAULT_API_KEY);
       toast({
         title: "Success",
-        description: "Gemini API key removed successfully",
+        description: "Custom API key removed, using default key",
       });
       return true;
     } catch (error) {

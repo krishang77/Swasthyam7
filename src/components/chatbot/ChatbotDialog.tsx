@@ -14,6 +14,7 @@ import ChatMessage from './ChatMessage';
 import { useToast } from '@/hooks/use-toast';
 import { useChatbotApi } from '@/hooks/use-chatbot-api';
 import { getChatCompletion } from '@/services/chatbotService';
+import ChatbotSettings from './ChatbotSettings';
 
 export interface Message {
   id: string;
@@ -72,7 +73,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
   const handleSendMessage = useCallback(async () => {
     if (!inputMessage.trim()) return;
     
-    if (!isConfigured && !apiKey) {
+    if (!isConfigured) {
       toast({
         title: 'Cannot connect to Gemini',
         description: 'There was an issue with the API connection. Please try again later.',
@@ -107,9 +108,14 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
         content: userMessage.content
       });
       
+      // Make sure we have a valid API key
+      if (!apiKey) {
+        throw new Error('No API key available');
+      }
+      
       const response = await getChatCompletion({
         messages: recentMessages,
-        apiKey: apiKey || ''
+        apiKey: apiKey
       });
       
       const assistantMessage: Message = {
@@ -124,7 +130,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
       console.error('Error calling Gemini API:', error);
       toast({
         title: 'Error',
-        description: 'Failed to get a response. Please try again.',
+        description: 'Failed to get a response. Please try again or check the API key in settings.',
         variant: 'destructive',
       });
     } finally {
@@ -135,8 +141,9 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ isOpen, onOpenChange }) =
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md md:max-w-lg max-h-[80vh] flex flex-col p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-4 border-b bg-primary/10">
+        <DialogHeader className="p-4 border-b bg-primary/10 relative">
           <DialogTitle className="text-center font-bold text-primary">Health Assistant</DialogTitle>
+          <ChatbotSettings />
         </DialogHeader>
         
         <ScrollArea className="flex-grow py-4 px-4 h-[400px] bg-gradient-to-b from-background to-background/80">
