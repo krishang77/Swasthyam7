@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
         <div className="flex items-center mb-4 md:mb-0">
           <Heart className="h-5 w-5 text-primary mr-2" />
-          <span className="font-medium">VitalTrack</span>
+          <span className="font-medium">Swasthyam</span>
         </div>
         
         <div className="flex flex-col md:flex-row items-center md:space-x-8 space-y-2 md:space-y-0">
@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="mt-4 md:mt-0 text-sm text-foreground/50">
-          &copy; {currentYear} VitalTrack. All rights reserved.
+          &copy; {currentYear} Swasthyam. All rights reserved.
         </div>
       </div>
     </footer>

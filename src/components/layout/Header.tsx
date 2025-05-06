@@ -93,7 +93,7 @@ const Header: React.FC = () => {
         <div className="flex items-center">
           <NavLink to="/" className="flex items-center space-x-2">
             <Heart className="h-8 w-8 text-primary animate-pulse-ring" />
-            <span className="text-xl font-semibold tracking-tight">VitalTrack</span>
+            <span className="text-xl font-semibold tracking-tight">Swasthyam</span>
           </NavLink>
         </div>
         
