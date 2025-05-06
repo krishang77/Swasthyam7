@@ -22,6 +22,7 @@ import SleepLogForm from '@/components/sleep/SleepLogForm';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import CyclePromoCard from '@/components/cycle/CyclePromoCard';
 
 // Sample data
 const activityData = [
@@ -404,7 +405,7 @@ const Index = () => {
           </FadeIn>
           
           {/* Recent Activities */}
-          <FadeIn delay={550}>
+          <FadeIn delay={550} className="space-y-6">
             <DashboardCard title="Recent Activities" subtitle="Today">
               <div className="space-y-4">
                 {recentActivities.map((activity) => (
@@ -431,6 +432,9 @@ const Index = () => {
                 </Button>
               </div>
             </DashboardCard>
+            
+            {/* Add Cycle Tracker Promo */}
+            <CyclePromoCard />
           </FadeIn>
         </div>
       </div>

@@ -19,6 +19,7 @@ import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import ChatbotButton from "./components/chatbot/ChatbotButton";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import MenstrualTracker from "./pages/MenstrualTracker";
 
 const queryClient = new QueryClient();
 
@@ -113,6 +114,18 @@ const App = () => (
                   <Header />
                   <main className="flex-1">
                     <Profile />
+                  </main>
+                  <Footer />
+                  <ChatbotButton />
+                </div>
+              </ProtectedRoute>
+            } />
+            <Route path="/cycle" element={
+              <ProtectedRoute>
+                <div className="flex flex-col min-h-screen">
+                  <Header />
+                  <main className="flex-1">
+                    <MenstrualTracker />
                   </main>
                   <Footer />
                   <ChatbotButton />

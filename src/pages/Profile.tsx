@@ -12,8 +12,10 @@ import {
   MapPin, 
   Phone, 
   Settings, 
-  User 
+  User,
+  CalendarHeart
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import DashboardCard from '@/components/dashboard/DashboardCard';
@@ -177,6 +179,15 @@ const Profile = () => {
                   >
                     <Settings className="mr-2 h-4 w-4" /> Settings
                   </Button>
+                  <Button
+                    variant="outline"
+                    className="justify-start w-full"
+                    asChild
+                  >
+                    <Link to="/cycle">
+                      <CalendarHeart className="mr-2 h-4 w-4 text-pink-500" /> Cycle Tracker
+                    </Link>
+                  </Button>
                   <Button 
                     variant="outline" 
                     className="justify-start w-full text-destructive hover:text-destructive"
@@ -289,7 +300,12 @@ const Profile = () => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={handleLanguageSettings}
+                    onClick={() => {
+                      toast({
+                        title: "Language settings",
+                        description: "Language settings would open here.",
+                      });
+                    }}
                   >
                     <Globe className="mr-2 h-4 w-4" /> Change
                   </Button>
@@ -326,7 +342,12 @@ const Profile = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={handleNotificationSettings}
+                      onClick={() => {
+                        toast({
+                          title: "Notification settings",
+                          description: "Notification settings would open here.",
+                        });
+                      }}
                     >
                       Manage
                     </Button>
@@ -336,7 +357,12 @@ const Profile = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={handleConnectedApps}
+                      onClick={() => {
+                        toast({
+                          title: "Connected apps",
+                          description: "Connected apps settings would open here.",
+                        });
+                      }}
                     >
                       Manage
                     </Button>
@@ -346,7 +372,12 @@ const Profile = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={handlePrivacySettings}
+                      onClick={() => {
+                        toast({
+                          title: "Privacy settings",
+                          description: "Privacy settings would open here.",
+                        });
+                      }}
                     >
                       Manage
                     </Button>
