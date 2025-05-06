@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   Activity, 
@@ -21,6 +22,7 @@ import ActivityForm from '@/components/activity/ActivityForm';
 import SleepLogForm from '@/components/sleep/SleepLogForm';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Sample data
 const activityData = [
@@ -33,21 +35,61 @@ const activityData = [
   { name: 'Sun', steps: 11200, calories: 610, distance: 8.2 },
 ];
 
-const workoutSessions = [
-  { day: 'Monday', type: 'Cardio', duration: '45 min', intensity: 'High' },
-  { day: 'Tuesday', type: 'Strength', duration: '60 min', intensity: 'Medium' },
-  { day: 'Thursday', type: 'Yoga', duration: '30 min', intensity: 'Low' },
-  { day: 'Friday', type: 'HIIT', duration: '25 min', intensity: 'High' },
-  { day: 'Sunday', type: 'Running', duration: '40 min', intensity: 'Medium' },
-];
-
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [addActivityOpen, setAddActivityOpen] = useState(false);
   const [logSleepOpen, setLogSleepOpen] = useState(false);
+  const [recentActivities, setRecentActivities] = useState([
+    {
+      id: 1,
+      type: 'Morning Run',
+      details: '5.7 km • 35 min • 6:32 AM',
+      icon: <Activity className="h-5 w-5" />,
+      iconClass: 'bg-blue-100 text-blue-600'
+    },
+    {
+      id: 2,
+      type: 'Strength Training',
+      details: '45 min • 320 cal • 9:15 AM',
+      icon: <BarChart className="h-5 w-5" />,
+      iconClass: 'bg-green-100 text-green-600'
+    },
+    {
+      id: 3,
+      type: 'Stretching',
+      details: '15 min • 60 cal • 5:40 PM',
+      icon: <TrendingUp className="h-5 w-5" />,
+      iconClass: 'bg-purple-100 text-purple-600'
+    },
+    {
+      id: 4,
+      type: 'Weight Check',
+      details: '75.2 kg • -0.3 kg • 8:10 PM',
+      icon: <Calendar className="h-5 w-5" />,
+      iconClass: 'bg-yellow-100 text-yellow-600'
+    }
+  ]);
+  const [workoutSessions, setWorkoutSessions] = useState([
+    { id: 1, day: 'Monday', type: 'Cardio', duration: '45 min', intensity: 'High' },
+    { id: 2, day: 'Tuesday', type: 'Strength', duration: '60 min', intensity: 'Medium' },
+    { id: 3, day: 'Thursday', type: 'Yoga', duration: '30 min', intensity: 'Low' },
+    { id: 4, day: 'Friday', type: 'HIIT', duration: '25 min', intensity: 'High' },
+    { id: 5, day: 'Sunday', type: 'Running', duration: '40 min', intensity: 'Medium' },
+  ]);
 
-  const handleAddActivitySubmit = () => {
+  const handleAddActivitySubmit = (activityData: any) => {
+    const newActivity = {
+      id: Date.now(),
+      type: activityData.activityType || 'Walking',
+      details: `${activityData.distance || 0} km • ${activityData.duration || 0} min • ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+      icon: <Activity className="h-5 w-5" />,
+      iconClass: 'bg-blue-100 text-blue-600'
+    };
+    
+    setRecentActivities(prev => [newActivity, ...prev.slice(0, 3)]);
+    
     toast({
       title: "Activity added",
       description: "Your activity has been logged successfully.",
@@ -55,12 +97,39 @@ const Index = () => {
     setAddActivityOpen(false);
   };
 
-  const handleLogSleepSubmit = () => {
+  const handleLogSleepSubmit = (sleepData: any) => {
+    const newSleepActivity = {
+      id: Date.now(),
+      type: 'Sleep',
+      details: `${sleepData.hours || 8}h ${sleepData.minutes || 0}m • Sleep Score: ${sleepData.quality || 'Good'}`,
+      icon: <Clock className="h-5 w-5" />,
+      iconClass: 'bg-indigo-100 text-indigo-600'
+    };
+    
+    setRecentActivities(prev => [newSleepActivity, ...prev.slice(0, 3)]);
+    
     toast({
       title: "Sleep logged",
       description: "Your sleep data has been logged successfully.",
     });
     setLogSleepOpen(false);
+  };
+
+  const handleAddWorkout = (workoutData: any) => {
+    const newWorkout = {
+      id: Date.now(),
+      day: workoutData.day || 'Monday',
+      type: workoutData.type || 'Cardio',
+      duration: `${workoutData.duration || 30} min`,
+      intensity: workoutData.intensity || 'Medium'
+    };
+    
+    setWorkoutSessions(prev => [...prev, newWorkout]);
+    
+    toast({
+      title: "Workout added",
+      description: "Your workout has been scheduled successfully.",
+    });
   };
 
   const navigateToSchedule = () => {
@@ -84,15 +153,19 @@ const Index = () => {
     });
   };
 
+  const getUserName = () => {
+    return currentUser?.name || "User";
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
       <div className="bg-gradient-to-b from-primary/10 to-background pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-6">
           <FadeIn direction="up" delay={100}>
-            <h1 className="text-4xl font-bold tracking-tight">Good morning, Alex</h1>
+            <h1 className="text-4xl font-bold tracking-tight">Good morning, {getUserName()}</h1>
             <p className="mt-2 text-muted-foreground">
-              Here's your health summary for today, July 24, 2023
+              Here's your health summary for today
             </p>
           </FadeIn>
 
@@ -215,9 +288,9 @@ const Index = () => {
           <FadeIn delay={450}>
             <DashboardCard title="Workout Schedule" subtitle="This week">
               <div className="flex flex-col space-y-4">
-                {workoutSessions.map((session, index) => (
+                {workoutSessions.map((session) => (
                   <div 
-                    key={index}
+                    key={session.id}
                     className="flex items-center py-3 px-4 rounded-lg hover:bg-secondary/50 transition-colors"
                   >
                     <div className="mr-4 p-2 rounded-full bg-primary/10 text-primary">
@@ -330,53 +403,19 @@ const Index = () => {
           <FadeIn delay={550}>
             <DashboardCard title="Recent Activities" subtitle="Today">
               <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="mr-4 p-2 rounded-full bg-blue-100 text-blue-600">
-                    <Activity className="h-5 w-5" />
+                {recentActivities.map((activity) => (
+                  <div key={activity.id} className="flex items-center">
+                    <div className={`mr-4 p-2 rounded-full ${activity.iconClass}`}>
+                      {activity.icon}
+                    </div>
+                    <div>
+                      <h4 className="font-medium">{activity.type}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {activity.details}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-medium">Morning Run</h4>
-                    <p className="text-sm text-muted-foreground">
-                      5.7 km • 35 min • 6:32 AM
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center">
-                  <div className="mr-4 p-2 rounded-full bg-green-100 text-green-600">
-                    <BarChart className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Strength Training</h4>
-                    <p className="text-sm text-muted-foreground">
-                      45 min • 320 cal • 9:15 AM
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center">
-                  <div className="mr-4 p-2 rounded-full bg-purple-100 text-purple-600">
-                    <TrendingUp className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Stretching</h4>
-                    <p className="text-sm text-muted-foreground">
-                      15 min • 60 cal • 5:40 PM
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center">
-                  <div className="mr-4 p-2 rounded-full bg-yellow-100 text-yellow-600">
-                    <Calendar className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Weight Check</h4>
-                    <p className="text-sm text-muted-foreground">
-                      75.2 kg • -0.3 kg • 8:10 PM
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
               <div className="mt-4">
                 <Button 

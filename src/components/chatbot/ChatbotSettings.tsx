@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Settings } from 'lucide-react';
 import { useChatbotApi } from '@/hooks/use-chatbot-api';
 
-const DEFAULT_API_KEY = "AIzaSyAF7N2mvoP36U9FrUYY6OmQGzM9jUC6cBg";
+const DEFAULT_API_KEY = "AIzaSyC8uE4Iv3Bz15CsE1yAj9G49giYmr2obmE";
 
 const ChatbotSettings: React.FC = () => {
   const { apiKey, isConfigured, saveApiKey, clearApiKey } = useChatbotApi();

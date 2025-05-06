@@ -9,12 +9,23 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ProfileEditFormProps {
-  onSubmit: () => void;
+  onSubmit: (formData: ProfileFormData) => void;
   onCancel: () => void;
 }
 
+export interface ProfileFormData {
+  name: string;
+  email: string;
+  phone: string;
+  bio: string;
+  gender: string;
+  birthdate: string;
+  height: string;
+  weight: string;
+}
+
 const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ProfileFormData>({
     name: 'Alex Johnson',
     email: 'alex.j@example.com',
     phone: '(555) 123-4567',
@@ -42,7 +53,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ onSubmit, onCancel })
 
   const handleSubmit = () => {
     console.log('Submitting profile data:', formData);
-    onSubmit();
+    onSubmit(formData);
   };
 
   return (
